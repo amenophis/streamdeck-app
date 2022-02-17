@@ -1,0 +1,77 @@
+background {
+    color: #2d2d2d
+}
+name{
+    color: #c8c8c8 / #e6e6e6
+}
+profile{
+    color: #e6e6e6
+}
+dropdown{
+    color: #3c3c3c
+}
+dropdown title{
+    color: #969696
+}
+dropdown item{
+    color: #e6e6e6
+}
+button border{
+    color: #474747
+}
+button content{
+    color: #222222
+}
+
+button selected border{
+    color: #0078ff
+}
+button selected content{
+    color: #102052
+}
+
+pages title{
+    color: #969696
+}
+pages back{
+    color: #373737
+}
+pages selected back{
+    color: #c8c8c8
+}
+pages selected text{
+    color: #2d2d2d
+}
+pages plus{
+    color: #969696
+}
+
+side back{
+    color: #292929
+}
+side separator{
+    color: #222222
+}
+
+side search back{
+    color: #3b3b3b
+}
+side search text{
+    color: #686868
+}
+side search loop{
+    color: #767676
+}
+
+side section title back{
+    color: #292929
+}
+side section title text{
+    color: #e6e6e6
+}
+side section item title{
+    color: #222222
+}
+side section item text{
+    color: #9c9c9c
+}
