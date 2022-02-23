@@ -17,6 +17,7 @@ function App() {
 
     useEffect(() => {
         tauri.invoke('get_decks')
+        tauri.invoke('get_devices   ')
             .then((decks) => {
                 console.log(decks);
                 setDecks(decks as DeckItem[]);
