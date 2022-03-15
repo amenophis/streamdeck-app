@@ -3,30 +3,44 @@
     windows_subsystem = "windows"
 )]
 
-use std::sync::{Arc, Mutex};
-use crate::app::App;
+// Module declarations
+mod streamdeck {
+    pub(crate) mod manager;
 
-mod app;
-mod devices {
-    pub(crate) mod device_manager;
-    pub(crate) mod device;
-    pub(crate) mod elgato {
+    pub(crate) mod devices {
         pub(crate) mod streamdeck;
+        pub(crate) mod streamdeck_original_v2;
     }
 }
+
 mod commands {
-    pub(crate) mod get_devices;
     pub(crate) mod get_version;
 }
 
+// Imports
+use std::sync::{Arc, Mutex};
+use tauri::Manager as TauriManager;
+use crate::streamdeck::manager::Manager;
+
 fn main() {
     tauri::Builder::default()
-        .manage(Arc::new(Mutex::new(App::new())))
+        .setup(move |app| {
+            let app_handle = app.handle();
+             
+            app.manage(
+            Arc::new(
+                Mutex::new(
+                    Manager::new(app_handle)
+                    )
+                )
+            );
+            
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
-            crate::commands::get_devices::get_devices,
             crate::commands::get_version::get_version,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
-}
+}  
 

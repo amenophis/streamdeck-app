@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import './App.css'
 // import { Deck } from './components/Deck'
+import { emit, listen } from '@tauri-apps/api/event'
 
 // With the Tauri API npm package:
 import { tauri } from '@tauri-apps/api'
@@ -13,17 +14,31 @@ interface DeckItem {
 }
 
 function App() {
-    const [decks, setDecks] = useState([] as DeckItem[]);
 
     useEffect(() => {
-        tauri.invoke('get_decks')
-        tauri.invoke('get_devices   ')
-            .then((decks) => {
-                console.log(decks);
-                setDecks(decks as DeckItem[]);
-            })
-            .catch((err) => console.error(err));
+        async function registerDeviceManagerCallbacks() {
+            const unlisten = await listen('streamdeck_attached', event => {
+                console.log(event, event.event, event.payload);
+            });
+            const unlisten2 = await listen('streamdeck_detached', event => {
+                console.log(event, event.event, event.payload);
+            });
+        }
+
+        registerDeviceManagerCallbacks();
+        
     }, []);
+
+    // const [decks, setDecks] = useState([] as DeckItem[]);
+
+    // useEffect(() => {
+    //     tauri.invoke('set_brightness')
+    //         .then((res) => {
+    //             console.log(res);
+    //             // setDecks(decks as DeckItem[]);
+    //         })
+    //         .catch((err) => console.error(err));
+    // }, []);
 
     // function version() {
     //     tauri.invoke('connect', {
