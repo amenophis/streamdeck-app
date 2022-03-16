@@ -5,29 +5,37 @@ use std::time::Duration;
 use hidapi::HidApi;
 use tauri::{AppHandle, Manager as TauriManager, Wry};
 
+use crate::streamdeck::devices::streamdeck_mini::StreamdeckMini;
+use crate::streamdeck::devices::streamdeck_mk2::StreamdeckMk2;
+use crate::streamdeck::devices::streamdeck_original::StreamdeckOriginal;
 use crate::streamdeck::devices::streamdeck_original_v2::StreamdeckOriginalV2;
+use crate::streamdeck::devices::streamdeck_xl::StreamdeckXl;
 
 const VENDOR_ID: u16 = 0x0fd9;
 
+const PRODUCT_ID_STREAMDECK_MINI: u16 = 0x0063;
+const PRODUCT_ID_STREAMDECK_MK2: u16 = 0x0080;
 const PRODUCT_ID_STREAMDECK_ORIGINAL: u16 = 0x0060;
 const PRODUCT_ID_STREAMDECK_ORIGINAL_V2: u16 = 0x006d;
-const PRODUCT_ID_STREAMDECK_MINI: u16 = 0x0063;
 const PRODUCT_ID_STREAMDECK_XL: u16 = 0x006c;
-const PRODUCT_ID_STREAMDECK_MK2: u16 = 0x0080;
 
 type StreamdeckProduct = (u16, u16);
 
 static STREAMDECK_PRODUCTS: [StreamdeckProduct; 5] = [
+    (VENDOR_ID, PRODUCT_ID_STREAMDECK_MINI),
+    (VENDOR_ID, PRODUCT_ID_STREAMDECK_MK2),
     (VENDOR_ID, PRODUCT_ID_STREAMDECK_ORIGINAL),
     (VENDOR_ID, PRODUCT_ID_STREAMDECK_ORIGINAL_V2),
-    (VENDOR_ID, PRODUCT_ID_STREAMDECK_MINI),
     (VENDOR_ID, PRODUCT_ID_STREAMDECK_XL),
-    (VENDOR_ID, PRODUCT_ID_STREAMDECK_MK2),
 ];
 
 #[derive(Clone)]
 pub enum StreamdeckEnum {
-    StreamdeckOriginalV2(StreamdeckOriginalV2)
+    StreamdeckMini(StreamdeckMini),
+    StreamdeckMk2(StreamdeckMk2),
+    StreamdeckOriginal(StreamdeckOriginal),
+    StreamdeckOriginalV2(StreamdeckOriginalV2),
+    StreamdeckXl(StreamdeckXl),
 }
 
 #[derive(Clone, serde::Serialize)]
@@ -109,11 +117,51 @@ impl Manager {
                     continue;
                 }
                 match pid {
+                    PRODUCT_ID_STREAMDECK_MINI => {
+                        streamdecks.insert(
+                            device.serial_number().unwrap().to_string(),
+                            StreamdeckEnum::StreamdeckMini(
+                                StreamdeckMini::new(
+                                    device.clone()
+                                )
+                            )
+                        );
+                    }
+                    PRODUCT_ID_STREAMDECK_MK2 => {
+                        streamdecks.insert(
+                            device.serial_number().unwrap().to_string(),
+                            StreamdeckEnum::StreamdeckMk2(
+                                StreamdeckMk2::new(
+                                    device.clone()
+                                )
+                            )
+                        );
+                    }
+                    PRODUCT_ID_STREAMDECK_ORIGINAL => {
+                        streamdecks.insert(
+                            device.serial_number().unwrap().to_string(),
+                            StreamdeckEnum::StreamdeckOriginal(
+                                StreamdeckOriginal::new(
+                                    device.clone()
+                                )
+                            )
+                        );
+                    }
                     PRODUCT_ID_STREAMDECK_ORIGINAL_V2 => {
                         streamdecks.insert(
                             device.serial_number().unwrap().to_string(),
                             StreamdeckEnum::StreamdeckOriginalV2(
                                 StreamdeckOriginalV2::new(
+                                    device.clone()
+                                )
+                            )
+                        );
+                    }
+                    PRODUCT_ID_STREAMDECK_XL => {
+                        streamdecks.insert(
+                            device.serial_number().unwrap().to_string(),
+                            StreamdeckEnum::StreamdeckXl(
+                                StreamdeckXl::new(
                                     device.clone()
                                 )
                             )

@@ -2,11 +2,11 @@ use hidapi::DeviceInfo;
 use crate::streamdeck::devices::streamdeck::Streamdeck;
 
 #[derive(Clone)]
-pub struct StreamdeckOriginalV2 {
+pub struct StreamdeckOriginal {
     device: DeviceInfo
 }
 
-impl Streamdeck for StreamdeckOriginalV2 {
+impl Streamdeck for StreamdeckOriginal {
     fn get_device(&self) -> &DeviceInfo {
         &self.device
     }
@@ -20,7 +20,7 @@ impl Streamdeck for StreamdeckOriginalV2 {
     }
 } 
 
-impl StreamdeckOriginalV2 {
+impl StreamdeckOriginal {
     pub fn new(device: DeviceInfo) -> Self
     {
         Self {

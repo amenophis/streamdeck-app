@@ -9,7 +9,11 @@ mod streamdeck {
 
     pub(crate) mod devices {
         pub(crate) mod streamdeck;
+        pub(crate) mod streamdeck_mini;
+        pub(crate) mod streamdeck_mk2;
+        pub(crate) mod streamdeck_original;
         pub(crate) mod streamdeck_original_v2;
+        pub(crate) mod streamdeck_xl;
     }
 }
 
