@@ -18,30 +18,44 @@ mod streamdeck {
 }
 
 mod commands {
+    pub(crate) mod get_streamdecks;
     pub(crate) mod get_version;
 }
 
+use std::{sync::{Arc, Mutex}};
+
+use hidapi::HidApi;
+use streamdeck::manager::StreamdeckMap;
+
 // Imports
-use std::sync::{Arc, Mutex};
-use tauri::Manager as TauriManager;
 use crate::streamdeck::manager::Manager;
+
+use tauri::Manager as TauriManager;
 
 fn main() {
     tauri::Builder::default()
         .setup(move |app| {
             let app_handle = app.handle();
-             
-            app.manage(
-            Arc::new(
-                Mutex::new(
-                    Manager::new(app_handle)
-                    )
-                )
-            );
+
+            app.manage(Arc::new(Mutex::new(StreamdeckMap::new())));
+            app.manage(Arc::new(Mutex::new(HidApi::new().unwrap())));
+            app.manage(Arc::new(Mutex::new(Manager::new(app_handle))));
+            
+//             let mut hid_api_arc = app.state::<Arc<Mutex<HidApi>>>();
+//             let mut hid_api = hid_api_arc.lock().unwrap();
+//             hid_api.refresh_devices();
+
+// println!("bjr");
+
+//             for d in hid_api.device_list() {
+//                 println!("{}", d.serial_number().unwrap());
+//             }
+
             
             Ok(())
         })
         .invoke_handler(tauri::generate_handler![
+            crate::commands::get_streamdecks::get_streamdecks,
             crate::commands::get_version::get_version,
         ])
         .run(tauri::generate_context!())

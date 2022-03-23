@@ -1,85 +1,100 @@
-use hidapi::DeviceInfo;
+use std::str::from_utf8;
 
-pub trait Streamdeck: Send
-{
-    fn get_device(&self) -> &DeviceInfo;
-    fn serial_number(&self) -> String
-    {
-        self.get_device().serial_number().unwrap().to_string()
-    }
-    
-    fn get_columns(&self) -> i32;
-    fn get_rows(&self) -> i32;
+use hidapi::HidDevice;
+
+pub struct StreamdeckStruct {
+    hid_device: HidDevice
 }
 
-// pub struct Streamdeck {
-//     hid_api: Arc<Mutex<HidApi>>,c
-//     device_info: DeviceInfo,
-// }
-// 
-// impl Streamdeck {
-//     pub fn new(hid_api: Arc<Mutex<HidApi>>, device_info: DeviceInfo) -> Self {
-//         Self {
-//             hid_api,
-//             device_info,
-//             
-//         }
-//     }
-//     
-//     pub fn open(&mut self) {
-//         // if (self.)
-//         match self.hid_api.lock() {
-//             Ok(hid_api) => {
-//                 match self.device_info.open_device(&hid_api) {
-//                     Ok(_) => { }
-//                     Err(_) => { }
-//                 }
-//             },
-//             Err(e) => {
-//                 println!("Error: {}", e);
-//             }
-//         }
-//     }
-// }
+unsafe impl Sync for StreamdeckStruct {}
 
-// trait Streamdeck {
-//     fn open(&self);
-// }
+impl StreamdeckStruct {
+    pub fn new(hid_device: HidDevice) -> Self 
+    {
+        Self {
+            hid_device
+        }
+    }
+}
 
-// trait SetBrightness<T: Streamdeck> {
-//     fn set_brightness(&self);
-// }
+pub enum Streamdeck {
+    Mini { s: StreamdeckStruct },
+    Mk2 { s: StreamdeckStruct },
+    Original { s: StreamdeckStruct },
+    OriginalV2 { s: StreamdeckStruct },
+    Xl { s: StreamdeckStruct },
+}
 
-// impl SetBrightness<T> for Streamdeck {
-//     fn set_brightness(&self) {
-//         println!("Set Brightness");
-//         match self.hid_api.lock() {
-//             Ok(hid_api) => {
-//                 match hid_api.open_serial(
-//                     self.device_info.vendor_id(),
-//                     self.device_info.product_id(),
-//                     self.device_info.serial_number().unwrap()
-//                 ) {
-//                     Ok(device) => {
-//                         for brightness in 0..=100 {
-//                             println!("{}", brightness);
-//                             let mut cmd = [0u8; 17];
-//                             cmd[..3].copy_from_slice(&[0x03, 0x08, brightness]);
+impl Streamdeck {
+    pub fn get_rows(&self) -> i32
+    {
+        match self {
+            Self::Mini { .. } => 2,
+            Self::Mk2 { .. } => 3,
+            Self::Original { .. } => 3,
+            Self::OriginalV2 { .. } => 3,
+            Self::Xl { .. } => 5
+        }
+    }
 
-//                             device.send_feature_report(&cmd).unwrap();
+    pub fn get_cols(&self) -> i32
+    {
+        match self {
+            Self::Mini { .. } => 3,
+            Self::Mk2 { .. } => 5,
+            Self::Original { .. } => 5,
+            Self::OriginalV2 { .. } => 5,
+            Self::Xl { .. } => 4
+        }
+    }
 
-//                             sleep(Duration::from_millis(100));
-//                         }
-//                     },
-//                     Err(e) => {
-//                         println!("Error: {}", e);
+    
+    pub fn get_name(&self) -> String
+    {
+        let s = match self {
+            Self::Mini { s } => s,
+            Self::Mk2{ s } => s,
+            Self::Original{ s } => s,
+            Self::OriginalV2{ s } => s,
+            Self::Xl{ s } => s,
+        };
+        
+        s.hid_device.get_product_string().unwrap().unwrap()
+    }
+    
+    pub fn set_brightness(&self, value: u8)
+    {
+        let s = match self {
+            Self::Mini { s } => s,
+            Self::Mk2{ s } => s,
+            Self::Original{ s } => s,
+            Self::OriginalV2{ s } => s,
+            Self::Xl{ s } => s,
+        };
+        
+        let mut cmd = [0u8; 17];
+        cmd[..3].copy_from_slice(&[0x03, 0x08, value]);
 
-//                     }
-//                 }
-//             },
-//             Err(e) => {
-//                 println!("Error: {}", e);
-//             }
-//         }
-//     }
-// }
+        s.hid_device.send_feature_report(&cmd).unwrap();
+    }
+
+    pub fn get_version(&self) -> String
+    {
+        let s = match self {
+            Self::Mini { s } => s,
+            Self::Mk2{ s } => s,
+            Self::Original{ s } => s,
+            Self::OriginalV2{ s } => s,
+            Self::Xl{ s } => s,
+        };
+        
+        let mut cmd = [0u8; 17];
+
+        cmd[0] = 0x05;
+
+        let _s = s.hid_device.get_feature_report(&mut cmd);
+
+        let offset = 6;
+        from_utf8(&cmd[offset..]).unwrap().to_string()
+    }
+}

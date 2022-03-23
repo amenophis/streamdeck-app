@@ -14,25 +14,21 @@ interface DeckItem {
 }
 
 function App() {
-
-    useEffect(() => {
-        async function registerDeviceManagerCallbacks() {
-            const unlisten = await listen('streamdeck_attached', event => {
-                console.log(event, event.event, event.payload);
-            });
-            const unlisten2 = await listen('streamdeck_detached', event => {
-                console.log(event, event.event, event.payload);
-            });
-        }
-
-        registerDeviceManagerCallbacks();
-        
-    }, []);
-
     // const [decks, setDecks] = useState([] as DeckItem[]);
 
+    useEffect(() => {
+        tauri.invoke('get_streamdecks')
+            .then((res) => {
+                console.log(res);
+                // setDecks(decks as DeckItem[]);
+            })
+            .catch((err) => console.error(err));
+    }, []);
+
     // useEffect(() => {
-    //     tauri.invoke('set_brightness')
+    //     tauri.invoke('get_version', {
+    //         serial: 'AL32K2C65582' 
+    //     })
     //         .then((res) => {
     //             console.log(res);
     //             // setDecks(decks as DeckItem[]);
