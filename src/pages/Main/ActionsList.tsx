@@ -1,5 +1,3 @@
-import "./ActionsList.css";
-
 export function ActionsList() {
   return (
     <div className='flex-none w-72 bg-[#292929] pl-px'>
