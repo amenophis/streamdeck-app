@@ -1,12 +1,11 @@
 import { Main } from '@/pages/Main'
+import { StreamdeckListProvider } from '@/contexts/StreamdeckList';
 
 function App() {
   return (
-    <div onContextMenu={(e) => {
-      e.preventDefault(); // prevent the default behaviour when right clicked
-    }}>
+    <StreamdeckListProvider>
       <Main />
-    </div>
+    </StreamdeckListProvider>
   );
 }
 
