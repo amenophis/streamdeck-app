@@ -1,0 +1,14 @@
+{
+  "folders": [
+	{
+		"path": "."
+	},
+	{
+		"path": "../streamdeck-app-old"
+	},
+	{
+		"path": "../../../perso/streamdeck/streamdeckfs"
+	}
+],
+  "settings": {}
+}

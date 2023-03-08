@@ -1,12 +1,16 @@
+export enum Kind {
+  OriginalV2 = 'original_v2',
+} 
+
 export class Streamdeck {
-  readonly kind: string;
+  readonly kind: Kind;
   readonly name: string;
   readonly serial: string;
   readonly row_count: number;
   readonly column_count: number;
   readonly key_count: number;
 
-  constructor(kind: string, name: string, serial: string, row_count: number, column_count: number, key_count: number) {
+  constructor(kind: Kind, name: string, serial: string, row_count: number, column_count: number, key_count: number) {
     this.kind = kind;
     this.name = name;
     this.serial = serial;

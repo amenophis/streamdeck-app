@@ -8,9 +8,9 @@ export function Profiles() {
     <div className='relative mt-1' tabIndex={1} onFocus={() => setOpen(true)} onBlur={() => setOpen(false)}>
       <span className='inline-block cursor-pointer'>
         Profil 1
-          { !isOpen 
-            && <BiChevronDown className="inline w-5 h-5 ml-2"></BiChevronDown>
-            || <BiChevronUp className="inline w-5 h-5 ml-2"></BiChevronUp>
+          { isOpen 
+            && <BiChevronUp className="inline w-5 h-5 ml-2"></BiChevronUp>
+            || <BiChevronDown className="inline w-5 h-5 ml-2"></BiChevronDown>
           }
       </span>
       {

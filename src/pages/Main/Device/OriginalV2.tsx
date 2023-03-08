@@ -1,7 +1,11 @@
 import { Streamdeck } from "@/model/Streamdeck";
 import { Button } from "./Button";
 
-export function OriginalV2(props:{ streamdeck: Streamdeck }) {
+type OriginalV2Props = {
+  streamdeck: Streamdeck
+};
+
+export function OriginalV2(props: OriginalV2Props) {
   return (
     <div>
       {

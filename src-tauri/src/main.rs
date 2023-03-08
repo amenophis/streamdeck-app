@@ -3,37 +3,29 @@
     windows_subsystem = "windows"
 )]
 
-use hidapi::HidApi;
-use std::sync::Arc;
+use streamdeck::manager::DeviceManager;
+use tauri::{async_runtime::block_on, Manager as TauriManager};
 
-use streamdeck::manager::{Manager, StreamdeckMap};
-use tauri::{async_runtime::Mutex, Manager as TauriManager};
+use crate::streamdeck::{server::StreamDeckServer, transport::TransportType};
 
 mod streamdeck {
     pub(crate) mod manager;
+    pub(crate) mod monitor;
+    pub(crate) mod server;
+    pub(crate) mod transport;
 }
 
 fn main() {
     tauri::Builder::default()
         .setup(move |app| {
-            println!("Starting ...");
+            block_on(async {
+                let mut stream_deck_server = StreamDeckServer::new();
+                let device_manager = DeviceManager::new(TransportType::StreamdeckRs());
 
-            let hid_api = HidApi::new();
-            if hid_api.is_err() {
-                panic!("Unable to open hid_api");
-            }
+                stream_deck_server.start(device_manager).await;
 
-            let hid_api_mutex = Arc::new(Mutex::new(hid_api.unwrap()));
-            app.manage(hid_api_mutex.clone());
-
-            let streamdeck_map_mutex = Arc::new(Mutex::new(StreamdeckMap::new()));
-            app.manage(streamdeck_map_mutex.clone());
-
-            app.manage(Manager::new(
-                hid_api_mutex.clone(),
-                streamdeck_map_mutex.clone(),
-                app,
-            ));
+                app.manage(stream_deck_server);
+            });
 
             Ok(())
         })
