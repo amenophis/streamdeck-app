@@ -3,41 +3,44 @@ use std::{collections::HashMap, sync::Arc, time::Duration};
 use tauri::async_runtime::{spawn, Mutex, Sender};
 use tokio::time::sleep;
 
-use super::{manager::DeviceManager, transport::Device};
-pub enum Events {
-    Attached { serial: String },
-    Detached { serial: String },
-}
+use super::transport::{streamdeck_rs::StreamdeckRs, Device, Events, Transport, TransportType};
 
 pub struct StreamDeckMonitor {
-    manager: Arc<Mutex<DeviceManager>>,
+    transport: Arc<Mutex<Box<dyn Transport>>>,
     streamdecks: Arc<Mutex<HashMap<String, Box<dyn Device>>>>,
     sender: Sender<Events>,
 }
 
 impl StreamDeckMonitor {
-    pub fn new(manager: Arc<Mutex<DeviceManager>>, sender: Sender<Events>) -> Self {
+    pub fn new(t: TransportType, sender: Sender<Events>) -> Self {
         Self {
-            manager,
+            transport: match t {
+                // TransportType::Dummy() => Box::new(Dummy::new()),
+                TransportType::StreamdeckRs() => {
+                    Arc::new(Mutex::new(Box::new(StreamdeckRs::new())))
+                }
+            },
             streamdecks: Arc::new(Mutex::new(HashMap::new())),
             sender,
         }
     }
     pub async fn start(&mut self) {
-        let manager = self.manager.clone();
         let streamdecks = self.streamdecks.clone();
         let sender = self.sender.clone();
+
+        let transport = self.transport.clone();
 
         spawn(async move {
             loop {
                 {
-                    let mut manager = manager.lock().await;
-                    let attached_streamdecks = manager.enumerate().await;
+                    let mut transport = transport.lock().await;
+
+                    let attached_streamdecks = transport.enumerate().await;
 
                     let mut attached_serials = Vec::new();
 
                     // Look for new streamdecks
-                    for streamdeck in attached_streamdecks {
+                    for mut streamdeck in attached_streamdecks {
                         let mut streamdecks = streamdecks.lock().await;
 
                         let serial = streamdeck.serial().await;
@@ -45,11 +48,13 @@ impl StreamDeckMonitor {
 
                         if !streamdecks.contains_key(&serial) {
                             // Send Attached event
-                            sender
+                            let _ = sender
                                 .send(Events::Attached {
                                     serial: serial.clone(),
                                 })
                                 .await;
+
+                            streamdeck.open(sender.clone()).await;
 
                             // Attach streamdeck
                             streamdecks.insert(serial, streamdeck);
@@ -73,7 +78,7 @@ impl StreamDeckMonitor {
                             streamdecks.remove(&serial);
 
                             // Send Detached event
-                            sender
+                            let _ = sender
                                 .send(Events::Detached {
                                     serial: serial.clone(),
                                 })
@@ -87,5 +92,5 @@ impl StreamDeckMonitor {
         });
     }
 
-    pub async fn stop(&self) {}
+    // pub async fn stop(&self) {}
 }

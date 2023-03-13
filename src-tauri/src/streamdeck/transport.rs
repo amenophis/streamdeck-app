@@ -1,25 +1,38 @@
 pub mod dummy;
 pub mod streamdeck_rs;
 
+use std::fmt::Debug;
+
 use async_trait::async_trait;
+use tauri::async_runtime::Sender;
+
+pub enum Events {
+    Attached { serial: String },
+    Detached { serial: String },
+    ButtonPressed { serial: String, index: u8 },
+    ButtonReleased { serial: String, index: u8 },
+}
 
 #[async_trait]
-pub trait Device: Send + Sync {
-    fn close(&self);
-    fn is_open(&self);
-    fn connected(&self);
-    async fn serial(&self) -> String;
-    fn vendor_id(&self);
-    fn product_id(&self);
-    fn write_feature(&self, payload: String);
-    fn read_feature(&self, report_id: String, length: String);
-    fn write(&self, payload: String);
-    fn read(&self, length: u8);
+pub trait Device: Send + Sync + Debug {
+    async fn open(&mut self, sender: Sender<Events>);
+    async fn close(&mut self);
+    async fn connected(&mut self) -> bool;
+    async fn serial(&mut self) -> String;
 }
 
 pub enum TransportType {
     // Dummy(),
     StreamdeckRs(),
+}
+
+impl Clone for TransportType {
+    fn clone(&self) -> TransportType {
+        match self {
+            // TransportType::Dummy() => TransportType::Dummy(),
+            TransportType::StreamdeckRs() => TransportType::StreamdeckRs(),
+        }
+    }
 }
 
 #[async_trait]

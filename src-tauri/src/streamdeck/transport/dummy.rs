@@ -2,13 +2,13 @@
 
 // use super::{Device, Transport};
 
-pub struct Dummy {}
+// pub struct Dummy {}
 
-impl Dummy {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
+// impl Dummy {
+//     pub fn new() -> Self {
+//         Self {}
+//     }
+// }
 
 // #[async_trait]
 // impl Transport for Dummy {
