@@ -16,6 +16,9 @@
       "shell": {
         "all": false,
         "open": true
+      },
+      "fs": {
+        "scope": ["$CONFIG/streamdeck-app/plugins/*"]
       }
     },
     "bundle": {

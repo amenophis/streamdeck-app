@@ -7,13 +7,14 @@ use tauri::{
 
 use crate::streamdeck::transport::Events;
 
-use super::{monitor::StreamDeckMonitor, transport::TransportType};
+use super::{plugin::PluginManager, streamdeck::StreamDeckManager, transport::TransportType};
 
 pub struct StreamDeckServer {
     current: Option<String>,
     streamdeck_serials: Arc<Mutex<Vec<String>>>,
     transport_type: TransportType,
-    monitor: Option<Arc<Mutex<StreamDeckMonitor>>>,
+    plugin_manager: Option<Arc<Mutex<PluginManager>>>,
+    streamdeck_manager: Option<Arc<Mutex<StreamDeckManager>>>,
 }
 
 impl StreamDeckServer {
@@ -22,17 +23,31 @@ impl StreamDeckServer {
             current: None,
             streamdeck_serials: Arc::new(Mutex::new(Vec::new())),
             transport_type,
-            monitor: None,
+            plugin_manager: None,
+            streamdeck_manager: None,
         }
     }
 
     pub async fn start(&mut self, app_handle: AppHandle) {
         self.start_app(app_handle.clone()).await;
-        self.start_monitor().await;
+        self.start_plugin_manager(app_handle.clone()).await;
+        self.start_streamdeck_manager().await;
     }
 
-    async fn start_monitor(&mut self) {
-        if self.monitor.is_none() {
+    async fn start_plugin_manager(&mut self, app_handle: AppHandle) {
+        if self.plugin_manager.is_none() {
+            self.plugin_manager =
+                Some(Arc::new(Mutex::new(PluginManager::new(app_handle.clone()))));
+        }
+
+        let plugin_manager = self.plugin_manager.as_ref().unwrap();
+        let mut plugin_manager = plugin_manager.lock().await;
+
+        plugin_manager.start().await;
+    }
+
+    async fn start_streamdeck_manager(&mut self) {
+        if self.streamdeck_manager.is_none() {
             let (events_sender, mut events_receiver) = channel(32);
 
             let streamdeck_serials = self.streamdeck_serials.clone();
@@ -62,18 +77,16 @@ impl StreamDeckServer {
                 }
             });
 
-            let monitor = Arc::new(Mutex::new(StreamDeckMonitor::new(
+            self.streamdeck_manager = Some(Arc::new(Mutex::new(StreamDeckManager::new(
                 self.transport_type.clone(),
                 events_sender.clone(),
-            )));
-
-            self.monitor = Some(monitor);
+            ))));
         }
 
-        let monitor = self.monitor.as_ref().unwrap();
-        let mut monitor = monitor.lock().await;
+        let streamdeck_manager = self.streamdeck_manager.as_ref().unwrap();
+        let mut streamdeck_manager = streamdeck_manager.lock().await;
 
-        monitor.start().await;
+        streamdeck_manager.start().await;
     }
 
     async fn start_app(&mut self, app_handle: AppHandle) {

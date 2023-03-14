@@ -8,9 +8,10 @@ use tauri::{async_runtime::block_on, Manager as TauriManager};
 use crate::streamdeck::{server::StreamDeckServer, transport::TransportType};
 
 mod streamdeck {
-    pub(crate) mod monitor;
-    pub(crate) mod server;
-    pub(crate) mod transport;
+    pub mod plugin;
+    pub mod server;
+    pub mod streamdeck;
+    pub mod transport;
 }
 
 fn main() {

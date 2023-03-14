@@ -5,13 +5,13 @@ use tokio::time::sleep;
 
 use super::transport::{streamdeck_rs::StreamdeckRs, Device, Events, Transport, TransportType};
 
-pub struct StreamDeckMonitor {
+pub struct StreamDeckManager {
     transport: Arc<Mutex<Box<dyn Transport>>>,
     streamdecks: Arc<Mutex<HashMap<String, Box<dyn Device>>>>,
     sender: Sender<Events>,
 }
 
-impl StreamDeckMonitor {
+impl StreamDeckManager {
     pub fn new(t: TransportType, sender: Sender<Events>) -> Self {
         Self {
             transport: match t {
