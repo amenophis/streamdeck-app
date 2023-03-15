@@ -1,6 +1,7 @@
+#![allow(dead_code)]
+
 use serde::Deserialize;
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#members
 pub struct Manifest {
@@ -44,7 +45,6 @@ pub struct Manifest {
     // applications_to_monitor: Option<??>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#actions
 pub struct Action {
@@ -74,7 +74,6 @@ pub struct Action {
     encoder: Option<Encoder>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#states
 pub struct State {
@@ -102,7 +101,6 @@ pub struct State {
     font_underline: Option<bool>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#encoder-sd
 pub struct Encoder {
@@ -118,7 +116,6 @@ pub struct Encoder {
     trigger_description: Option<TriggerDescription>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#triggerdescription-sd
 pub struct TriggerDescription {
@@ -132,7 +129,6 @@ pub struct TriggerDescription {
     long_touch: String,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#profiles
 pub struct Profile {
@@ -146,7 +142,6 @@ pub struct Profile {
     dont_auto_switch_when_installed: Option<bool>,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 pub enum DeviceType {
     StreamDeck = 0,
@@ -159,7 +154,6 @@ pub enum DeviceType {
     StreamDeckPlus = 7,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#os
 pub struct OS {
@@ -169,7 +163,6 @@ pub struct OS {
     minimum_version: String,
 }
 
-#[allow(dead_code)]
 #[derive(Debug, Deserialize)]
 // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#software
 pub struct Software {
@@ -177,8 +170,7 @@ pub struct Software {
     minimum_version: String,
 }
 
-// #[allow(dead_code)]
-// #[derive(Debug, Deserialize)]
+// // #[derive(Debug, Deserialize)]
 // // https://developer.elgato.com/documentation/stream-deck/sdk/manifest/#applicationstomonitor
 // pub struct ApplicationsToMonitor {
 // }
