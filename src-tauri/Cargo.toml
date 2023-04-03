@@ -23,6 +23,12 @@ async-trait = "0.1.65"
 tokio-tungstenite = "0.18.0"
 futures-util = "0.3"
 url = "2.3.1"
+rocket = "0.4"
+image = "0.24.6"
+
+[dependencies.rocket_contrib]
+default-features = false
+features = ["serve"]
 
 [features]
 # by default Tauri runs in production mode

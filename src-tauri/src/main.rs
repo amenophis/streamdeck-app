@@ -8,10 +8,8 @@ use tauri::{async_runtime::block_on, Manager as TauriManager};
 use crate::streamdeck::{server::StreamDeckServer, transport::TransportType};
 
 mod streamdeck {
-    pub mod events;
     pub mod plugin;
     pub mod server;
-    pub mod streamdeck;
     pub mod transport;
 }
 
@@ -19,8 +17,8 @@ fn main() {
     tauri::Builder::default()
         .setup(move |app| {
             block_on(async {
-                let mut stream_deck_server = StreamDeckServer::new(TransportType::StreamdeckRs());
-                stream_deck_server.start(app.handle()).await;
+                let stream_deck_server =
+                    StreamDeckServer::new(TransportType::StreamdeckRs(), app.handle()).await;
 
                 app.manage(stream_deck_server);
             });
@@ -29,5 +27,5 @@ fn main() {
         })
         .invoke_handler(tauri::generate_handler![])
         .run(tauri::generate_context!())
-        .expect("error while running tauri application");
+        .expect("error while running tauri app lication");
 }

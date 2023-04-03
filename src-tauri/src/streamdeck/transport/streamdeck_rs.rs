@@ -3,13 +3,15 @@ use std::{
     sync::Arc,
 };
 
-use super::{Device, Events, Transport};
+use super::{Device, Transport, TransportEvent};
 use async_trait::async_trait;
 use elgato_streamdeck::{
     asynchronous::ButtonStateUpdate, info::Kind, list_devices, AsyncStreamDeck,
 };
 use hidapi::HidApi;
+use image::open;
 use tauri::async_runtime::{spawn, Mutex, Sender};
+use tokio::fs;
 
 struct StreamdeckRsDevice {
     hid_api: Arc<Mutex<HidApi>>,
@@ -40,7 +42,7 @@ impl Debug for StreamdeckRsDevice {
 
 #[async_trait]
 impl Device for StreamdeckRsDevice {
-    async fn open(&mut self, sender: Sender<Events>) {
+    async fn open(&mut self, sender: Sender<TransportEvent>) {
         let hid_api = self.hid_api.lock().await;
 
         let streamdeck =
@@ -54,15 +56,15 @@ impl Device for StreamdeckRsDevice {
 
         let reader = streamdeck.get_reader().clone();
 
-        let _ = spawn(async move {
+        spawn(async move {
             while let Ok(button_state_updates) = reader.read(30.0).await {
                 for button_state_update in button_state_updates {
                     let event = match button_state_update {
-                        ButtonStateUpdate::ButtonDown(index) => Events::ButtonPressed {
+                        ButtonStateUpdate::ButtonDown(index) => TransportEvent::ButtonPressed {
                             serial: serial.clone(),
                             index,
                         },
-                        ButtonStateUpdate::ButtonUp(index) => Events::ButtonReleased {
+                        ButtonStateUpdate::ButtonUp(index) => TransportEvent::ButtonReleased {
                             serial: serial.clone(),
                             index,
                         },
@@ -71,8 +73,7 @@ impl Device for StreamdeckRsDevice {
                     let _ = sender.send(event).await;
                 }
             }
-        })
-        .await;
+        });
     }
 
     async fn close(&mut self) {
@@ -88,6 +89,25 @@ impl Device for StreamdeckRsDevice {
 
     async fn serial(&mut self) -> String {
         self.serial.clone()
+    }
+
+    async fn write_image(&self, key: u8, image: String) {
+        let streamdeck = self.streamdeck.as_ref().unwrap();
+
+        let image = open("/home/jeremy/Téléchargements/pnggrad8rgb.jpg").unwrap();
+
+        let res = streamdeck.set_button_image(key, image).await;
+
+        match res {
+            Ok(_) => {
+                dbg!("OK");
+                ()
+            }
+            Err(error) => {
+                dbg!(error);
+                ()
+            }
+        }
     }
 }
 
